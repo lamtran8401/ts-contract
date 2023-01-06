@@ -1,0 +1,5 @@
+DEFINE_NEAR_METHOD(get_owner_by_id)
+DEFINE_NEAR_METHOD(get_owner_id)
+DEFINE_NEAR_METHOD(init)
+DEFINE_NEAR_METHOD(set_owner_by_id)
+DEFINE_NEAR_METHOD(set_owner_id)
