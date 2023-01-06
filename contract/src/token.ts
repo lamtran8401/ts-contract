@@ -1,27 +1,37 @@
 import { AccountId } from 'near-sdk-js/lib/types'
-import { NearBindgen, call } from 'near-sdk-js'
+import { NearBindgen, call, view } from 'near-sdk-js'
+import { TokenId, TokenMetadata } from './type'
 
-type TokenId = string
-type MintParams = {
-	token_id: TokenId
-	token_owner_id: AccountId
+const metadata: TokenMetadata = {
+	title: 'Tet Holiday 2023 NFT',
+	description: 'Tet Holiday 2023 NFT',
+	media: '',
+	media_hash: '',
+	copies: 1,
+	issued_at: 0,
+	expires_at: 0,
+	starts_at: 0,
+	updated_at: 0,
+	extra: '',
+	reference: '',
+	reference_hash: '',
 }
 
 // This is the main contract class
 @NearBindgen({})
-export class Token {
-	token_id: TokenId // The account ID / address wallet of the owner
-	owner_id: AccountId // A map of account ID to owner ID
+export default class Token {
+	token_id: TokenId
+	owner_id: AccountId
+	metadata: TokenMetadata
 
 	constructor(token_id: TokenId, owner_id: AccountId) {
 		this.token_id = token_id
 		this.owner_id = owner_id
+		this.metadata = metadata
 	}
 
-	// This function is called when minting a new token
-	@call({})
-	mint_nft({ token_id, token_owner_id }: MintParams): void {
-		this.token_id = token_id
-		this.owner_id = token_owner_id
+	@view({})
+	nft_metadata(): TokenMetadata {
+		return this.metadata
 	}
 }

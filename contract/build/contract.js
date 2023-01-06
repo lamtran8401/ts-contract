@@ -33,6 +33,17 @@ var TypeBrand;
   TypeBrand["BIGINT"] = "bigint";
   TypeBrand["DATE"] = "date";
 })(TypeBrand || (TypeBrand = {}));
+/**
+ * Asserts that the expression passed to the function is truthy, otherwise throws a new Error with the provided message.
+ *
+ * @param expression - The expression to be asserted.
+ * @param message - The error message to be printed.
+ */
+function assert(expression, message) {
+  if (!expression) {
+    throw new Error("assertion failed: " + message);
+  }
+}
 function getValueWithOptions(value, options = {
   deserializer: deserialize
 }) {
@@ -674,38 +685,173 @@ class LookupMap {
   }
 }
 
-var _dec, _dec2, _dec3, _dec4, _dec5, _dec6, _class, _class2;
+var _dec$1, _dec2$1, _class$1, _class2$1;
+const metadata$1 = {
+  title: 'Tet Holiday 2023 NFT',
+  description: 'Tet Holiday 2023 NFT',
+  media: '',
+  media_hash: '',
+  copies: 1,
+  issued_at: 0,
+  expires_at: 0,
+  starts_at: 0,
+  updated_at: 0,
+  extra: '',
+  reference: '',
+  reference_hash: ''
+};
+
 // This is the main contract class
-let Contract = (_dec = NearBindgen({}), _dec2 = initialize(), _dec3 = call({}), _dec4 = call({}), _dec5 = view(), _dec6 = view(), _dec(_class = (_class2 = class Contract {
-  // The account ID / address wallet of the owner
-  // A map of account ID to owner ID
-
-  constructor() {
-    this.owner_id = '';
-    this.owner_by_id = new LookupMap('o');
+let Token = (_dec$1 = NearBindgen({}), _dec2$1 = view(), _dec$1(_class$1 = (_class2$1 = class Token {
+  constructor(token_id, owner_id) {
+    this.token_id = token_id;
+    this.owner_id = owner_id;
+    this.metadata = metadata$1;
   }
+  nft_metadata() {
+    return this.metadata;
+  }
+}, (_applyDecoratedDescriptor(_class2$1.prototype, "nft_metadata", [_dec2$1], Object.getOwnPropertyDescriptor(_class2$1.prototype, "nft_metadata"), _class2$1.prototype)), _class2$1)) || _class$1);
 
-  // This function is called when the contract is initialized
+var _dec, _dec2, _dec3, _dec4, _dec5, _dec6, _dec7, _dec8, _dec9, _dec10, _class, _class2;
+const metadata = {
+  spec: '1.0.0',
+  name: 'Tet Holiday 2023 NFT',
+  symbol: 'TH23',
+  icon: '',
+  base_uri: '',
+  reference: '',
+  reference_hash: ''
+};
+
+// This is the main contract class
+let Contract = (_dec = NearBindgen({}), _dec2 = initialize(), _dec3 = view(), _dec4 = call({}), _dec5 = call({}), _dec6 = view(), _dec7 = view(), _dec8 = view(), _dec9 = view(), _dec10 = view(), _dec(_class = (_class2 = class Contract {
+  constructor() {
+    this.token_id = 0;
+    this.owner_id = '';
+    this.metadata = metadata;
+    this.owner_by_id = new LookupMap('o');
+    this.token_by_id = new LookupMap('t');
+  }
   init({
     owner_id,
-    owner_by_id_prefix
+    prefix = 'o'
   }) {
+    this.token_id = 0;
     this.owner_id = owner_id;
-    this.owner_by_id = new LookupMap(owner_by_id_prefix);
+    this.owner_by_id = new LookupMap(prefix);
+    this.token_by_id = new LookupMap('t');
+    this.metadata = metadata;
   }
-  set_owner_id(owner_id) {
-    this.owner_id = owner_id;
+  nft_metadata() {
+    return this.metadata;
   }
-  set_owner_by_id(account_id, owner_id) {
-    this.owner_by_id.set(account_id, owner_id);
+  mint_nft({
+    token_owner_id
+  }) {
+    this.owner_by_id.set(this.token_id.toString(), token_owner_id);
+    let token = new Token(this.token_id, token_owner_id);
+    this.token_by_id.set(this.token_id.toString(), token);
+    this.token_id++;
+    return token;
   }
-  get_owner_id() {
-    return this.owner_id;
+  transfer_nft({
+    token_id,
+    new_owner_id
+  }) {
+    assert(this.owner_by_id.containsKey(token_id.toString()), 'Token not found');
+    assert(this.owner_by_id.get(token_id.toString()) === predecessorAccountId.toString(), 'Unauthorized');
+    this.owner_by_id.set(token_id.toString(), new_owner_id);
   }
-  get_owner_by_id(account_id) {
-    return this.owner_by_id.get(account_id);
+  get_owner_by_id({
+    token_id
+  }) {
+    const owner_id = this.owner_by_id.get(token_id.toString());
+    if (!owner_id) return null;
+    return owner_id;
   }
-}, (_applyDecoratedDescriptor(_class2.prototype, "init", [_dec2], Object.getOwnPropertyDescriptor(_class2.prototype, "init"), _class2.prototype), _applyDecoratedDescriptor(_class2.prototype, "set_owner_id", [_dec3], Object.getOwnPropertyDescriptor(_class2.prototype, "set_owner_id"), _class2.prototype), _applyDecoratedDescriptor(_class2.prototype, "set_owner_by_id", [_dec4], Object.getOwnPropertyDescriptor(_class2.prototype, "set_owner_by_id"), _class2.prototype), _applyDecoratedDescriptor(_class2.prototype, "get_owner_id", [_dec5], Object.getOwnPropertyDescriptor(_class2.prototype, "get_owner_id"), _class2.prototype), _applyDecoratedDescriptor(_class2.prototype, "get_owner_by_id", [_dec6], Object.getOwnPropertyDescriptor(_class2.prototype, "get_owner_by_id"), _class2.prototype)), _class2)) || _class);
+  get_token_by_id({
+    token_id
+  }) {
+    let token = this.token_by_id.get(token_id.toString());
+    if (!token) return null;
+    return token;
+  }
+  get_supply_token() {
+    return this.token_id;
+  }
+  get_all_tokens({
+    start = 0,
+    limit
+  }) {
+    var all_tokens = [];
+    limit = limit || this.token_id - start;
+    for (let i = start; i < this.token_id; i++) {
+      if (i >= start + limit) break;
+      all_tokens.push(this.token_by_id.get(i.toString()));
+    }
+    return all_tokens;
+  }
+  get_all_tokens_by_owner({
+    owner_id
+  }) {
+    var all_tokens_by_owner = [];
+    for (var i = 0; i < this.token_id; i++) if (this.owner_by_id.get(i.toString()) === owner_id) all_tokens_by_owner.push(this.token_by_id.get(i.toString()));
+    return all_tokens_by_owner;
+  }
+}, (_applyDecoratedDescriptor(_class2.prototype, "init", [_dec2], Object.getOwnPropertyDescriptor(_class2.prototype, "init"), _class2.prototype), _applyDecoratedDescriptor(_class2.prototype, "nft_metadata", [_dec3], Object.getOwnPropertyDescriptor(_class2.prototype, "nft_metadata"), _class2.prototype), _applyDecoratedDescriptor(_class2.prototype, "mint_nft", [_dec4], Object.getOwnPropertyDescriptor(_class2.prototype, "mint_nft"), _class2.prototype), _applyDecoratedDescriptor(_class2.prototype, "transfer_nft", [_dec5], Object.getOwnPropertyDescriptor(_class2.prototype, "transfer_nft"), _class2.prototype), _applyDecoratedDescriptor(_class2.prototype, "get_owner_by_id", [_dec6], Object.getOwnPropertyDescriptor(_class2.prototype, "get_owner_by_id"), _class2.prototype), _applyDecoratedDescriptor(_class2.prototype, "get_token_by_id", [_dec7], Object.getOwnPropertyDescriptor(_class2.prototype, "get_token_by_id"), _class2.prototype), _applyDecoratedDescriptor(_class2.prototype, "get_supply_token", [_dec8], Object.getOwnPropertyDescriptor(_class2.prototype, "get_supply_token"), _class2.prototype), _applyDecoratedDescriptor(_class2.prototype, "get_all_tokens", [_dec9], Object.getOwnPropertyDescriptor(_class2.prototype, "get_all_tokens"), _class2.prototype), _applyDecoratedDescriptor(_class2.prototype, "get_all_tokens_by_owner", [_dec10], Object.getOwnPropertyDescriptor(_class2.prototype, "get_all_tokens_by_owner"), _class2.prototype)), _class2)) || _class);
+function get_all_tokens_by_owner() {
+  const _state = Contract._getState();
+  if (!_state && Contract._requireInit()) {
+    throw new Error("Contract must be initialized");
+  }
+  const _contract = Contract._create();
+  if (_state) {
+    Contract._reconstruct(_contract, _state);
+  }
+  const _args = Contract._getArgs();
+  const _result = _contract.get_all_tokens_by_owner(_args);
+  if (_result !== undefined) if (_result && _result.constructor && _result.constructor.name === "NearPromise") _result.onReturn();else env.value_return(Contract._serialize(_result, true));
+}
+function get_all_tokens() {
+  const _state = Contract._getState();
+  if (!_state && Contract._requireInit()) {
+    throw new Error("Contract must be initialized");
+  }
+  const _contract = Contract._create();
+  if (_state) {
+    Contract._reconstruct(_contract, _state);
+  }
+  const _args = Contract._getArgs();
+  const _result = _contract.get_all_tokens(_args);
+  if (_result !== undefined) if (_result && _result.constructor && _result.constructor.name === "NearPromise") _result.onReturn();else env.value_return(Contract._serialize(_result, true));
+}
+function get_supply_token() {
+  const _state = Contract._getState();
+  if (!_state && Contract._requireInit()) {
+    throw new Error("Contract must be initialized");
+  }
+  const _contract = Contract._create();
+  if (_state) {
+    Contract._reconstruct(_contract, _state);
+  }
+  const _args = Contract._getArgs();
+  const _result = _contract.get_supply_token(_args);
+  if (_result !== undefined) if (_result && _result.constructor && _result.constructor.name === "NearPromise") _result.onReturn();else env.value_return(Contract._serialize(_result, true));
+}
+function get_token_by_id() {
+  const _state = Contract._getState();
+  if (!_state && Contract._requireInit()) {
+    throw new Error("Contract must be initialized");
+  }
+  const _contract = Contract._create();
+  if (_state) {
+    Contract._reconstruct(_contract, _state);
+  }
+  const _args = Contract._getArgs();
+  const _result = _contract.get_token_by_id(_args);
+  if (_result !== undefined) if (_result && _result.constructor && _result.constructor.name === "NearPromise") _result.onReturn();else env.value_return(Contract._serialize(_result, true));
+}
 function get_owner_by_id() {
   const _state = Contract._getState();
   if (!_state && Contract._requireInit()) {
@@ -719,7 +865,7 @@ function get_owner_by_id() {
   const _result = _contract.get_owner_by_id(_args);
   if (_result !== undefined) if (_result && _result.constructor && _result.constructor.name === "NearPromise") _result.onReturn();else env.value_return(Contract._serialize(_result, true));
 }
-function get_owner_id() {
+function transfer_nft() {
   const _state = Contract._getState();
   if (!_state && Contract._requireInit()) {
     throw new Error("Contract must be initialized");
@@ -729,24 +875,11 @@ function get_owner_id() {
     Contract._reconstruct(_contract, _state);
   }
   const _args = Contract._getArgs();
-  const _result = _contract.get_owner_id(_args);
-  if (_result !== undefined) if (_result && _result.constructor && _result.constructor.name === "NearPromise") _result.onReturn();else env.value_return(Contract._serialize(_result, true));
-}
-function set_owner_by_id() {
-  const _state = Contract._getState();
-  if (!_state && Contract._requireInit()) {
-    throw new Error("Contract must be initialized");
-  }
-  const _contract = Contract._create();
-  if (_state) {
-    Contract._reconstruct(_contract, _state);
-  }
-  const _args = Contract._getArgs();
-  const _result = _contract.set_owner_by_id(_args);
+  const _result = _contract.transfer_nft(_args);
   Contract._saveToStorage(_contract);
   if (_result !== undefined) if (_result && _result.constructor && _result.constructor.name === "NearPromise") _result.onReturn();else env.value_return(Contract._serialize(_result, true));
 }
-function set_owner_id() {
+function mint_nft() {
   const _state = Contract._getState();
   if (!_state && Contract._requireInit()) {
     throw new Error("Contract must be initialized");
@@ -756,8 +889,21 @@ function set_owner_id() {
     Contract._reconstruct(_contract, _state);
   }
   const _args = Contract._getArgs();
-  const _result = _contract.set_owner_id(_args);
+  const _result = _contract.mint_nft(_args);
   Contract._saveToStorage(_contract);
+  if (_result !== undefined) if (_result && _result.constructor && _result.constructor.name === "NearPromise") _result.onReturn();else env.value_return(Contract._serialize(_result, true));
+}
+function nft_metadata() {
+  const _state = Contract._getState();
+  if (!_state && Contract._requireInit()) {
+    throw new Error("Contract must be initialized");
+  }
+  const _contract = Contract._create();
+  if (_state) {
+    Contract._reconstruct(_contract, _state);
+  }
+  const _args = Contract._getArgs();
+  const _result = _contract.nft_metadata(_args);
   if (_result !== undefined) if (_result && _result.constructor && _result.constructor.name === "NearPromise") _result.onReturn();else env.value_return(Contract._serialize(_result, true));
 }
 function init() {
@@ -772,5 +918,5 @@ function init() {
   if (_result !== undefined) if (_result && _result.constructor && _result.constructor.name === "NearPromise") _result.onReturn();else env.value_return(Contract._serialize(_result, true));
 }
 
-export { get_owner_by_id, get_owner_id, init, set_owner_by_id, set_owner_id };
+export { get_all_tokens, get_all_tokens_by_owner, get_owner_by_id, get_supply_token, get_token_by_id, init, mint_nft, nft_metadata, transfer_nft };
 //# sourceMappingURL=contract.js.map
