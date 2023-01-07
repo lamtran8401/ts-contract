@@ -22,6 +22,7 @@ const metadata: TokenMetadata = {
 export default class Token {
 	token_id: TokenId
 	owner_id: AccountId
+	approved_account_ids: Record<string, number>
 	metadata: TokenMetadata
 
 	constructor(token_id: TokenId, owner_id: AccountId) {
